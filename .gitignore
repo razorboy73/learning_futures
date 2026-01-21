@@ -1,0 +1,21 @@
+# Ignore everything
+*
+
+# But not .ipynb files
+!*.ipynb
+
+# But allow requirements file
+!requirements.txt
+
+!README.md
+
+# But not .gitignore itself
+!.gitignore
+
+# Ignore this specific notebook
+#backup.ipynb
+
+# Ignore all .parquet files
+*.parquet
+#ignore all csv files
+*.csv
