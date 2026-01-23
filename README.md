@@ -2,7 +2,7 @@
 
 ## Summary of Changes
 
-Your reporting script has been enhanced to calculate and report:
+The reporting script has been enhanced to calculate and report:
 
 1. ✅ **Maximum Drawdown for Entire Strategy** (already existed)
 2. ✅ **Maximum Drawdown for Each Year** (newly added)
@@ -117,3 +117,21 @@ If you want to also display yearly drawdowns in your daily statement PDF report,
 3. Display the max drawdown for the specific year on each daily statement page
 
 
+# Summary of Changes to Daily Report
+
+Added load_summary_statistics() function - Loads performance metrics from CSV files
+Added draw_summary_statistics_page() function - Renders the summary page with all statistics
+Modified write_daily_statement_pdf() signature - Added summary_stats parameter
+Modified PDF generation - Summary stats page is now first, then volatility chart, then daily statements
+Modified main() function - Loads summary stats and passes them to PDF writer
+
+The summary page will now show:
+
+CAGR
+Total Return
+Sharpe Ratio
+Annual Volatility
+Overall Maximum Drawdown
+Table of yearly returns and drawdowns
+
+All formatted cleanly on the first page of the PDF report!
