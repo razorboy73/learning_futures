@@ -135,3 +135,74 @@ Overall Maximum Drawdown
 Table of yearly returns and drawdowns
 
 All formatted cleanly on the first page of the PDF report!
+
+
+
+# USD Risk Volume Filtering
+USAGE EXAMPLES:
+Example 1: No filtering (include all instruments)
+pythonCONFIG = {
+    "trade_symbol_allowlist": None,
+    "min_usd_risk_volume": 0,  # 0 means no filtering
+}
+Example 2: Only trade instruments with >$1M daily USD risk
+pythonCONFIG = {
+    "trade_symbol_allowlist": None,
+    "min_usd_risk_volume": 1_000_000,  # $1M minimum
+}
+Example 3: Only highly liquid instruments (>$50M daily USD risk)
+pythonCONFIG = {
+    "trade_symbol_allowlist": None,
+    "min_usd_risk_volume": 50_000_000,  # $50M minimum
+    # Will likely include: ES, NQ, CL, GC, etc.
+    # Will exclude: Most agricultural, minor currencies, etc.
+}
+Example 4: Combine with allowlist (both filters must pass)
+pythonCONFIG = {
+    "trade_symbol_allowlist": {"MES", "MNQ", "MCL", "MGC"},  # Specific micros
+    "min_usd_risk_volume": 20_000_000,  # AND must have >$20M USD risk
+    # Instrument must be in allowlist AND meet USD risk threshold
+}
+Example 5: Test with single instrument
+pythonCONFIG = {
+    "trade_symbol_allowlist": {"MES"},
+    "min_usd_risk_volume": 0,  # No USD risk filtering
+}
+
+OUTPUT:
+When you run the backtest, you'll see filtering messages like:
+Loading instruments...
+  ✅ ES (trades as MES): USD risk $2,450,123,456 >= min $50,000,000 - INCLUDED
+  ✅ NQ (trades as MNQ): USD risk $1,876,543,210 >= min $50,000,000 - INCLUDED
+  🚫 6A (trades as M6A): USD risk $15,234,567 < min $50,000,000 - FILTERED OUT
+  ✅ CL (trades as MCL): USD risk $1,234,567,890 >= min $50,000,000 - INCLUDED
+  🚫 ZC (trades as MZC): USD risk $8,456,789 < min $50,000,000 - FILTERED OUT
+  ...
+This lets you see exactly which instruments are being included/excluded based on your threshold.
+
+IMPORTANT NOTES:
+
+Set min_usd_risk_volume = 0 to include all instruments (no filtering)
+USD risk is based on most recent data in the file (last non-NaN value)
+Both filters apply: If you set both trade_symbol_allowlist and min_usd_risk_volume,
+the instrument must pass BOTH filters
+Make sure you ran 4a-compute_risk_volume.py first or you'll get warning messages
+The filtering happens at instrument loading time, so instruments are included/excluded
+for the entire backtest period based on their most recent USD risk value
+
+
+TESTING YOUR THRESHOLD:
+To find a good threshold, you can:
+
+Set min_usd_risk_volume = 0 and run backtest
+Look at the output - it will show USD risk for each instrument
+Adjust threshold based on which instruments you want to include
+Re-run with your chosen threshold
+
+Typical thresholds:
+
+$0: All instruments (no filtering)
+$10M: Filter out very illiquid markets
+$50M: Moderately liquid markets only
+$100M: Highly liquid markets only
+$500M+: Institutional-grade liquidity only
